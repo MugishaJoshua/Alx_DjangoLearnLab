@@ -1,4 +1,4 @@
-from relationship_app.models import Author, Book, library, Librarian
+from relationship_app.models import Author, Book, Library, Librarian
 
 def get_books_by_author(author_name):
     try:
@@ -13,23 +13,23 @@ def get_books_by_author(author_name):
 
 def list_books_in_library(library_name):
     try:
-        library = library.objects.get(name=library_name)
+        library = Library.objects.get(name=library_name)
         books = library.books.all()
         print(f"\n🏛️ Books available in {library_name}: ")  
         for book in books:
             print(f"- {book.title}")
-    except library.DoesNotExist:
-        print(f"\n ❌ Library '{library_name}' not found.")  
+    except Library.DoesNotExist:
+        print(f"\n ❌ Library '{Library_name}' not found.")  
 
 def get_librarian_for_library(library_name):
     try:
-        library = library.objects.get(name=library_name)
+        library = Library.objects.get(name=library_name)
         librarian = library.librarian
         if librarian:
             print(f"\n👲 librarian for {librarian.name}: {librarian.user.username}")
         else:
             print(f"\n💀{library.name} does not have a library assigned. ")
-    except library.DoesNotExist:
+    except Library.DoesNotExist:
         print(f"\n ❌ Library '{library_name}' not found.")
 
 if __name__ == "__main__":
