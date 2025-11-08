@@ -23,7 +23,7 @@ def list_books_in_library(library_name):
 
 def get_librarian_for_library(library_name):
     try:
-        library = Library.objects.get(name=library_name)
+        library = Librarian.objects.get(library=)
         librarian = library.librarian
         if librarian:
             print(f"\n👲 librarian for {librarian.name}: {librarian.user.username}")
