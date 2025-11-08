@@ -27,7 +27,7 @@ class Book(models.Model):
         return self.title
 
 
-class Library(models.Model):
+class library(models.Model):
     name = models.CharField(max_length=100)
     librarian = models.OneToOneField(Librarian, on_delete=models.CASCADE, null=True, blank=True)
     books = models.ManyToManyField(Book, related_name='libraries')
