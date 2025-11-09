@@ -25,4 +25,5 @@ urlpatterns = [
     path('admin-view/', views_roles.admin_view, name='admin_view'),
     path('librarian-view/', views_roles.librarian_view, name='librarian_view'),
     path('member-view/', views_roles.member_view, name='member_view'),
+     path('admin-view/', views.admin_view, name='admin_view'),
 ]
