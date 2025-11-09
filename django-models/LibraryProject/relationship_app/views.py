@@ -7,7 +7,8 @@ from .models import Book, Library
 from .forms import RegisterForm
 from django.contrib.auth.decorators import permission_required
 from .models import Book
-from .forms import BookForm
+from .forms import RegisterForm, BookForm
+
 
 # -------------------------
 # USER SIGNUP VIEW (Class-based)
