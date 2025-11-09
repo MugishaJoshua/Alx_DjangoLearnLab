@@ -27,10 +27,18 @@ class Book(models.Model):
         return self.title
 
 
-class library(models.Model):
+class Library(models.Model):
     name = models.CharField(max_length=100)
     librarian = models.OneToOneField(Librarian, on_delete=models.CASCADE, null=True, blank=True)
     books = models.ManyToManyField(Book, related_name='libraries')
 
     def __str__(self):
         return self.name
+    
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True)
+    location = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.user.username    
