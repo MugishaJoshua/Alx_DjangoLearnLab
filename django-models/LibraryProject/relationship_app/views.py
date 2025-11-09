@@ -11,6 +11,7 @@ class SignUpView(CreateView):
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.detail import DetailView
 from .models import Book
+from .views import list_books
 from .models import Library
 
 # Function-based view: List all books
