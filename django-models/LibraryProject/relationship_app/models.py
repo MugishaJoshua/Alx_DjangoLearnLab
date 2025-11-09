@@ -80,6 +80,7 @@ class Book(models.Model):
     title = models.CharField(max_length=200)
     published_date = models.DateField()
     author = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='books')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -90,3 +91,6 @@ class Book(models.Model):
             ("can_change_book", "Can change book"),
             ("can_delete_book", "Can delete book"),
         ]
+class Library(models.Model):
+    name = models.CharField(max_length=255)
+    books = models.ManyToManyField('relationship_app.Book')  # fully qualified

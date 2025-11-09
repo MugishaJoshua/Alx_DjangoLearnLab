@@ -14,4 +14,4 @@ class RegisterForm(UserCreationForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author']  # add other fields of your Book model as needed
+        fields = ['title', 'author', 'library']  # add other fields of your Book model as needed
