@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'bookshelf',
     'relationship_app',
     'accounts',
+    'django_extensions',
 ]
 
 
@@ -126,4 +127,4 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/accounts/profile"
 LOGOUT_REDIRECT_URL = "/accounts/profile"
-AUTH_USER_MODEL = "bookshelf.CustomUser"
+AUTH_USER_MODEL = "accounts.CustomUser"
