@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'relationship_app',
     'accounts',
     'django_extensions',
+    'csp',
 ]
 
 
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -126,3 +128,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/accounts/profile"
 LOGOUT_REDIRECT_URL = "/accounts/profile"
 AUTH_USER_MODEL = "bookshelf.CustomUser"
+SECURE_BROWSER_XSS_FILTER = True         # Enables XSS protection in modern browsers
+SECURE_CONTENT_TYPE_NOSNIFF = True       # Prevents MIME-type sniffing
+X_FRAME_OPTIONS = 'DENY'                 # Prevent clickjacking
+
+# Cookie security
+CSRF_COOKIE_SECURE = True               # Ensure CSRF cookie is only sent via HTTPS
+SESSION_COOKIE_SECURE = True            # Ensure session cookie is only sent via HTTPS
+
+# Optional: HSTS (HTTP Strict Transport Security)
+SECURE_HSTS_SECONDS = 3600              # Adjust to longer periods in production
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Recommended: allowed hosts
+ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
+
+# CSRF settings
+CSRF_COOKIE_HTTPONLY = True             # Prevent JavaScript access to CSRF cookie
+SESSION_COOKIE_HTTPONLY = True          # Prevent JavaScript access to session cookie
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:")
