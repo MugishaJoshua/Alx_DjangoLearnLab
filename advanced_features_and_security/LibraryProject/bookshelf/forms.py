@@ -1,7 +1,7 @@
 from django import forms
 from .models import Book
 
-class BookForm(forms.ModelForm):
+class ExampleForm(forms.ModelForm):
     """
     A secure form for creating and updating Book instances.
     Uses Django's ModelForm to validate and sanitize user inputs.
