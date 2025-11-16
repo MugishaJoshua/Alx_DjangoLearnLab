@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.shortcuts import render, get_object_or_404
 from .models import Book
-from .forms import BookForm
+from .forms import ExampleForm
 class SignUpView(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
