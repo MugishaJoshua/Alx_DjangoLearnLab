@@ -137,9 +137,11 @@ CSRF_COOKIE_SECURE = True               # Ensure CSRF cookie is only sent via HT
 SESSION_COOKIE_SECURE = True            # Ensure session cookie is only sent via HTTPS
 
 # Optional: HSTS (HTTP Strict Transport Security)
-SECURE_HSTS_SECONDS = 3600              # Adjust to longer periods in production
+SECURE_HSTS_SECONDS = 31536000               # Adjust to longer periods in production
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
 
 # Recommended: allowed hosts
 ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
@@ -152,3 +154,15 @@ CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
+
+# Ensure cookies are transmitted only over HTTPS
+SESSION_COOKIE_SECURE = True  # Secure session cookies
+CSRF_COOKIE_SECURE = True     # Secure CSRF protection cookies
+
+# Optional: Additional cookie hardening
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript from accessing session cookie
+CSRF_COOKIE_HTTPONLY = True     # Prevent JS from accessing CSRF cookie (Django 4.1+)
+SESSION_COOKIE_SAMESITE = 'Lax'  # Helps prevent CSRF attacks
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+
