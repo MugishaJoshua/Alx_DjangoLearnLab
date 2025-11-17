@@ -8,8 +8,8 @@ app_name = "relationship_app"
 urlpatterns = [
     # Books
     path('books/', views.list_books, name='list_books'),
-    path('books/add/', views.add_book, name='add_book'),           # ✅ must be exactly this
-    path('books/<int:pk>/edit/', views.edit_book, name='edit_book'),  # ✅ must be exactly this
+    path('books/add/', views.add_book, name='add_book/'),           # ✅ must be exactly this
+    path('books/<int:pk>/edit/', views.edit_book, name='edit_book/'),  # ✅ must be exactly this
     path('books/<int:pk>/delete/', views.delete_book, name='delete_book'),
 
     # Library Detail
