@@ -9,6 +9,7 @@ from .forms import RegisterForm
 from django.contrib.auth.decorators import permission_required
 from .models import Book
 from .forms import RegisterForm, BookForm
+from django.views.generic.detail import DetailView
 
 
 # -------------------------
