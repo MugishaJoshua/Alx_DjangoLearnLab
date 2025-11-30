@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',               # Django REST Framework
-    'rest_framework.authtoken',      # Token authentication support
+    'rest_framework',
+    'rest_framework.authtoken',
     'api',
 ]
 

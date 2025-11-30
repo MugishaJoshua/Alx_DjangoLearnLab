@@ -166,3 +166,4 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # Helps prevent CSRF attacks
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 
+
