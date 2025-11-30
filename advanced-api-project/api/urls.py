@@ -22,4 +22,7 @@ urlpatterns = [
 
     # Delete a book
     path('books/delete/', BookDeleteView.as_view(), name='book-delete'),
+
+    path('books/', BookListView.as_view(), name='book-list'),
+
 ]
