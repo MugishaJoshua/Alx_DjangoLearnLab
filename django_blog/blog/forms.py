@@ -1,5 +1,6 @@
 from django import forms
 from .models import Post
+from .models import Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -28,4 +29,25 @@ class PostForm(forms.ModelForm):
         title = self.cleaned_data.get('title', '').strip()
         if not title:
             raise forms.ValidationError("Title must not be empty.")
-        return title        
+        return title
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Add a public comment...'
+            }),
+        }
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').strip()
+        if not content:
+            raise forms.ValidationError('Comment cannot be empty.')
+        # Optional: enforce length limits
+        if len(content) > 2000:
+            raise forms.ValidationError('Comment too long (max 2000 characters).')
+        return content

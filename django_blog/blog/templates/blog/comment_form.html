@@ -1,0 +1,19 @@
+<!-- blog/templates/blog/comment_form.html -->
+{% extends "base.html" %}
+{% block content %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{% if object %}Edit Comment{% else %}Add Comment{% endif %}</h5>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-2">
+          {{ form.content }}
+          {% for err in form.content.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">{% if object %}Save{% else %}Post{% endif %}</button>
+        <a class="btn btn-link" href="{% if object %}{{ object.post.get_absolute_url }}{% else %}{% url 'blog:post-detail' post_pk %}{% endif %}">Cancel</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}

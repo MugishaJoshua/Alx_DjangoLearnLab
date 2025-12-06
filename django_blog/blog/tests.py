@@ -47,3 +47,44 @@ class PostCRUDTests(TestCase):
         resp = self.client.post(delete_url)
         self.assertEqual(resp.status_code, 302)
         self.assertFalse(Post.objects.filter(pk=self.post.pk).exists())
+
+class CommentTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='author', password='pass')
+        self.other = User.objects.create_user(username='other', password='pass')
+        self.post = Post.objects.create(title='Test', content='Content', author=self.user)
+        self.comment = Comment.objects.create(post=self.post, author=self.user, content='Nice post')
+
+    def test_comment_list_shown_on_post_detail(self):
+        resp = self.client.get(reverse('blog:post-detail', kwargs={'pk': self.post.pk}))
+        self.assertContains(resp, self.comment.content)
+
+    def test_create_comment_requires_login(self):
+        url = reverse('blog:comment-create', kwargs={'post_pk': self.post.pk})
+        resp = self.client.post(url, {'content': 'New comment'})
+        self.assertNotEqual(resp.status_code, 200)  # should redirect to login or 302
+        self.client.login(username='other', password='pass')
+        resp = self.client.post(url, {'content': 'New comment'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'New comment')
+
+    def test_update_comment_only_author(self):
+        update_url = reverse('blog:comment-update', kwargs={'pk': self.comment.pk})
+        self.client.login(username='other', password='pass')
+        resp = self.client.get(update_url)
+        self.assertNotEqual(resp.status_code, 200)
+        self.client.login(username='author', password='pass')
+        resp = self.client.get(update_url)
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post(update_url, {'content': 'Edited'}, follow=True)
+        self.assertContains(resp, 'Edited')
+
+    def test_delete_comment_only_author(self):
+        delete_url = reverse('blog:comment-delete', kwargs={'pk': self.comment.pk})
+        self.client.login(username='other', password='pass')
+        resp = self.client.post(delete_url)
+        self.assertNotEqual(resp.status_code, 200)
+        self.client.login(username='author', password='pass')
+        resp = self.client.post(delete_url, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, self.comment.content)
