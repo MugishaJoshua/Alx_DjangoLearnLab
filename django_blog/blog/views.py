@@ -9,6 +9,10 @@ from django.urls import reverse_lazy
 from .models import Post
 from .models import Comment
 from .forms import CommentForm
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from .models import  Tag
+from django.core.paginator import Paginator
 
 def register(request):
     if request.method == 'POST':
@@ -131,3 +135,71 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         # redirect back to the associated post detail page
         return reverse_lazy('blog:post-detail', kwargs={'pk': self.object.post.pk})
+    
+    @login_required
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            tags = form.cleaned_data.get('tag_field', [])
+            _attach_tags_to_post(post, tags)
+            return redirect(post.get_absolute_url())
+    else:
+        form = PostForm()
+    return render(request, 'blog/post_form.html', {'form': form})
+
+@login_required
+def post_update(request, pk):
+    post = get_object_or_404(Post, pk=pk, author=request.user)
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save()
+            tags = form.cleaned_data.get('tag_field', [])
+            post.tags.clear()
+            _attach_tags_to_post(post, tags)
+            return redirect(post.get_absolute_url())
+    else:
+        form = PostForm(instance=post)
+    return render(request, 'blog/post_form.html', {'form': form, 'post': post})
+
+def _attach_tags_to_post(post, tags_list):
+    """
+    Given a post and a list of tag names (strings), attach Tag objects.
+    Creates tags that don't exist.
+    """
+    for tname in tags_list:
+        tag_obj, created = Tag.objects.get_or_create(name=tname)
+        post.tags.add(tag_obj)
+
+def search_posts(request):
+    query = request.GET.get('q', '').strip()
+    results = Post.objects.none()
+    if query:
+        # search in title, content, and tag name
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by('-created_at')
+
+    # paginate
+    paginator = Paginator(results, 10)
+    page = request.GET.get('page')
+    posts_page = paginator.get_page(page)
+
+    return render(request, 'blog/search_results.html', {'query': query, 'posts': posts_page})
+
+def posts_by_tag(request, tag_name):
+    # exact match on tag name
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = tag.posts.all().order_by('-created_at')  # related_name='posts'
+    paginator = Paginator(posts, 10)
+    page = request.GET.get('page')
+    posts_page = paginator.get_page(page)
+    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts_page})
+
+

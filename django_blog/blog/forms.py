@@ -3,6 +3,7 @@ from .models import Post
 from .models import Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import  Tag
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -51,3 +52,29 @@ class CommentForm(forms.ModelForm):
         if len(content) > 2000:
             raise forms.ValidationError('Comment too long (max 2000 characters).')
         return content
+
+
+class PostForm(forms.ModelForm):
+    # input for comma separated tags
+    tag_field = forms.CharField(
+        required=False,
+        help_text="Add tags separated by commas. Example: python,django,aws"
+    )
+
+    class Meta:
+        model = Post
+        fields = ['title', 'content']  # add other fields you already use
+
+    def __init__(self, *args, **kwargs):
+        # if instance exists, populate tag_field with existing tags
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            tags_qs = self.instance.tags.all()
+            self.fields['tag_field'].initial = ','.join([t.name for t in tags_qs])
+
+    def clean_tag_field(self):
+        val = self.cleaned_data.get('tag_field', '')
+        # split, strip, unique, remove empty
+        tags = [t.strip() for t in val.split(',') if t.strip()]
+        # lowercase or keep as is — pick one consistent format:
+        return list(dict.fromkeys(tags))  # preserves order, unique

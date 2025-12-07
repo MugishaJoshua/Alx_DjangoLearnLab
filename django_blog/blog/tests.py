@@ -3,6 +3,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import Post
+from .models import Tag
+
 
 User = get_user_model()
 
@@ -88,3 +90,30 @@ class CommentTests(TestCase):
         resp = self.client.post(delete_url, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, self.comment.content)
+
+
+User = get_user_model()
+
+class TagSearchTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='u', password='p')
+        self.p1 = Post.objects.create(author=self.user, title='Django tips', content='Django content')
+        self.p2 = Post.objects.create(author=self.user, title='AWS guide', content='Cloud stuff')
+        Tag.objects.create(name='django')
+        t = Tag.objects.get(name='django')
+        self.p1.tags.add(t)
+
+    def test_posts_by_tag_view(self):
+        resp = self.client.get(reverse('posts_by_tag', kwargs={'tag_name': 'django'}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Django tips')
+        self.assertNotContains(resp, 'AWS guide')
+
+    def test_search_by_title(self):
+        resp = self.client.get(reverse('search_posts') + '?q=aws')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'AWS guide')
+
+    def test_search_by_tag(self):
+        resp = self.client.get(reverse('search_posts') + '?q=django')
+        self.assertContains(resp, 'Django tips')
