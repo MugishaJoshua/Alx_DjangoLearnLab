@@ -2,8 +2,10 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
