@@ -34,5 +34,8 @@ urlpatterns = [
     path('tags/<str:tag_name>/', views.posts_by_tag, name='posts_by_tag'),
     path('post/new/', views.post_create, name='post_create'),
     path('post/<int:pk>/edit/', views.post_update, name='post_update'),
+    path('', views.PostListView.as_view(), name='post-list'),
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('tags/<slug:tag_slug>/', views.PostByTagListView.as_view(), name='posts-by-tag'),
 
 ]
