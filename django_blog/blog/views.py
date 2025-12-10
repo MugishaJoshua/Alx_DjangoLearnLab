@@ -112,18 +112,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return self.object.get_absolute_url()
 
-class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment_form.html'
-
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
-
-    def get_success_url(self):
-        return self.object.get_absolute_url()
-
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
@@ -135,8 +123,13 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         # redirect back to the associated post detail page
         return reverse_lazy('blog:post-detail', kwargs={'pk': self.object.post.pk})
-    
-    @login_required
+
+
+# ============================
+# FUNCTION-BASED VIEWS (TAGS)
+# ============================
+
+@login_required
 def post_create(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -144,36 +137,43 @@ def post_create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+
             tags = form.cleaned_data.get('tag_field', [])
             _attach_tags_to_post(post, tags)
+
             return redirect(post.get_absolute_url())
     else:
         form = PostForm()
+
     return render(request, 'blog/post_form.html', {'form': form})
+
 
 @login_required
 def post_update(request, pk):
     post = get_object_or_404(Post, pk=pk, author=request.user)
+
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save()
+
             tags = form.cleaned_data.get('tag_field', [])
             post.tags.clear()
             _attach_tags_to_post(post, tags)
+
             return redirect(post.get_absolute_url())
     else:
         form = PostForm(instance=post)
+
     return render(request, 'blog/post_form.html', {'form': form, 'post': post})
 
+
 def _attach_tags_to_post(post, tags_list):
-    """
-    Given a post and a list of tag names (strings), attach Tag objects.
-    Creates tags that don't exist.
-    """
+    """Attach tags to a post, creating new ones if needed."""
     for tname in tags_list:
         tag_obj, created = Tag.objects.get_or_create(name=tname)
         post.tags.add(tag_obj)
+
 
 def search_posts(request):
     query = request.GET.get('q', '').strip()
@@ -203,3 +203,13 @@ def posts_by_tag(request, tag_name):
     return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts_page})
 
 
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = "blog/comment_form.html"
+
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
+
+    def test_func(self):
+        return self.request.user == self.get_object().author
