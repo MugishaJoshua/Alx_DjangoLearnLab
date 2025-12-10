@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Post, Comment
+from taggit.forms import TagWidget 
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -18,25 +19,24 @@ class ProfileUpdateForm(forms.ModelForm):
         fields = ['username', 'email']
 
 
-# ✅ ONLY ONE PostForm — with tag_field & NO 'published'
+# ✅ ONLY ONE PostForm — with tag_field & NO ' # this is the correct widget
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']  # Taggit field included here
-    class Meta:
-        model = Post
-        fields = ['title', 'content']  # No published field!
+        fields = ['title', 'content', 'tags']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Post title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 10, 'placeholder': 'Write your post...'}),
+            'tags': TagWidget(attrs={'class': 'form-control', 'placeholder': 'Add tags separated by commas'}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk:
-            tags_qs = self.instance.tags.all()
-            self.fields['tag_field'].initial = ",".join([t.name for t in tags_qs])
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').strip()
+        if not title:
+            raise forms.ValidationError("Title must not be empty.")
+        return title
 
-    def clean_tag_field(self):
-        val = self.cleaned_data.get('tag_field', '')
-        tags = [t.strip() for t in val.split(',') if t.strip()]
-        return list(dict.fromkeys(tags))  # unique and order preserved
 
 
 class CommentForm(forms.ModelForm):
