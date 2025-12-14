@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
+from .models import CustomUser
 from rest_framework.views import APIView
 from .serializers import (
     RegisterSerializer,
@@ -35,11 +36,15 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 User = get_user_model()
 
 
-class FollowUserView(APIView):
+class FollowUserView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
 
     def post(self, request, user_id):
-        user_to_follow = get_object_or_404(User, id=user_id)
+        user_to_follow = get_object_or_404(
+            CustomUser.objects.all(),
+            id=user_id
+        )
 
         if user_to_follow == request.user:
             return Response(
@@ -53,11 +58,15 @@ class FollowUserView(APIView):
         )
 
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
 
     def post(self, request, user_id):
-        user_to_unfollow = get_object_or_404(User, id=user_id)
+        user_to_unfollow = get_object_or_404(
+            CustomUser.objects.all(),
+            id=user_id
+        )
 
         request.user.following.remove(user_to_unfollow)
         return Response(
