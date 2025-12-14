@@ -1,32 +1,17 @@
 from rest_framework.views import APIView
-from rest_framework import permissions
+from rest_framework import generics, permissions
 from rest_framework.response import Response
-from .serializers import PostSerializer
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.contenttypes.models import ContentType
+
 from .models import Post, Like
 from notifications.models import Notification
 
 
-
-class FeedView(APIView):
+class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        following_users = request.user.following.all()
-
-        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
-
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-
-class LikePostView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
 
         like, created = Like.objects.get_or_create(
             user=request.user,
@@ -34,7 +19,10 @@ class LikePostView(APIView):
         )
 
         if not created:
-            return Response({"detail": "Post already liked"}, status=400)
+            return Response(
+                {"detail": "Post already liked"},
+                status=400
+            )
 
         if post.author != request.user:
             Notification.objects.create(
@@ -49,9 +37,9 @@ class LikePostView(APIView):
 
 
 class UnlikePostView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         Like.objects.filter(user=request.user, post=post).delete()
         return Response({"detail": "Post unliked"})
