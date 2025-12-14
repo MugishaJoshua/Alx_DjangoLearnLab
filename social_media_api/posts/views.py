@@ -13,16 +13,10 @@ class LikePostView(APIView):
     def post(self, request, pk):
         post = generics.get_object_or_404(Post, pk=pk)
 
-        like, created = Like.objects.get_or_create(
-            user=request.user,
-            post=post
-        )
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
 
         if not created:
-            return Response(
-                {"detail": "Post already liked"},
-                status=400
-            )
+            return Response({"detail": "Post already liked"}, status=400)
 
         if post.author != request.user:
             Notification.objects.create(
@@ -34,7 +28,6 @@ class LikePostView(APIView):
             )
 
         return Response({"detail": "Post liked"})
-
 
 class UnlikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
